@@ -33,7 +33,22 @@ enum class Card {
     QUEEN,
     KING,
     ACE
+};
 
+enum class Card2 {
+    JOKER,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE,
+    TEN,
+    QUEEN,
+    KING,
+    ACE
 };
 
 const std::unordered_map<char, Card> cards_map = {
@@ -50,6 +65,22 @@ const std::unordered_map<char, Card> cards_map = {
         {'Q', Card::QUEEN},
         {'K', Card::KING},
         {'A', Card::ACE}
+};
+
+const std::unordered_map<char, Card2> cards_map2 = {
+        {'J', Card2::JOKER},
+        {'2', Card2::TWO},
+        {'3', Card2::THREE},
+        {'4', Card2::FOUR},
+        {'5', Card2::FIVE},
+        {'6', Card2::SIX},
+        {'7', Card2::SEVEN},
+        {'8', Card2::EIGHT},
+        {'9', Card2::NINE},
+        {'T', Card2::TEN},
+        {'Q', Card2::QUEEN},
+        {'K', Card2::KING},
+        {'A', Card2::ACE}
 };
 
 enum class HandType {
@@ -73,6 +104,21 @@ struct Hand {
 
 private:
     std::unordered_map<Card, uint64_t> cards_count;
+
+    void calculate_hand_type();
+};
+
+struct Hand2 {
+    HandType type;
+    std::array<Card2, 5> cards{};
+    uint64_t bid;
+
+    Hand2(const std::string &hand_str, uint64_t bid);
+
+    bool operator<(const Hand2 &other) const;
+
+private:
+    std::unordered_map<Card2, uint64_t> cards_count;
 
     void calculate_hand_type();
 };
