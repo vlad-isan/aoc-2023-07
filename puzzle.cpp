@@ -84,7 +84,17 @@ int do_puzzle_1(std::ifstream &file) {
         hands.emplace_back(hand_str, bid);
     }
 
-    return 0;
+    // calculate ranks
+    std::sort(hands.begin(), hands.end());
+
+    uint64_t winnings = 0;
+
+    auto indices = std::views::iota(0u, hands.size());
+    for (const auto &[index, hand] : std::views::zip(indices, hands)) {
+        winnings += (index + 1) * hand.bid;
+    }
+
+    return winnings;
 }
 
 int do_puzzle_2(std::ifstream &file) {
@@ -98,12 +108,43 @@ int do_puzzle_2(std::ifstream &file) {
 }
 
 Hand::Hand(const std::string &hand_str, uint64_t bid) : bid(bid) {
-    std::ranges::transform(hand_str, this->cards.begin(), [](char c) { return cards_map.at(c); });
-    fmt::println("Str {} with bid {} is: ", hand_str, this->bid);
+    std::ranges::transform(hand_str, this->cards.begin(), [&](char c) {
+        Card card = cards_map.at(c);
 
-    for (auto &card : this->cards) {
-        fmt::print("{} ", (int)card);
+        this->cards_count[card]++;
+
+        return card;
+    });
+
+    this->calculate_hand_type();
+}
+
+void Hand::calculate_hand_type() {
+    if (this->cards_count.size() == 1) {
+        this->type = HandType::FIVE_OF_A_KIND;
+    } else if (this->cards_count.size() == 2) {
+        if (std::ranges::any_of(this->cards_count, [](auto pair) { return pair.second == 4; })) {
+            this->type = HandType::FOUR_OF_A_KIND;
+        } else {
+            this->type = HandType::FULL_HOUSE;
+        }
+    } else if (this->cards_count.size() == 3) {
+        if (std::ranges::any_of(this->cards_count, [](auto pair) { return pair.second == 3; })) {
+            this->type = HandType::THREE_OF_A_KIND;
+        } else {
+            this->type = HandType::TWO_PAIRS;
+        }
+    } else if (this->cards_count.size() == 4) {
+        this->type = HandType::ONE_PAIR;
+    } else {
+        this->type = HandType::HIGH_CARD;
     }
+}
 
-    fmt::println("\n");
+bool Hand::operator<(const Hand &other) const {
+    if (this->type != other.type) {
+        return this->type < other.type;
+    } else {
+        return std::lexicographical_compare(this->cards.begin(), this->cards.end(), other.cards.begin(), other.cards.end());
+    }
 }

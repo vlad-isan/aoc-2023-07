@@ -52,14 +52,29 @@ const std::unordered_map<char, Card> cards_map = {
         {'A', Card::ACE}
 };
 
+enum class HandType {
+    HIGH_CARD,
+    ONE_PAIR,
+    TWO_PAIRS,
+    THREE_OF_A_KIND,
+    FULL_HOUSE,
+    FOUR_OF_A_KIND,
+    FIVE_OF_A_KIND
+};
+
 struct Hand {
-    std::array<Card, 5> cards;
+    HandType type;
+    std::array<Card, 5> cards{};
     uint64_t bid;
 
     Hand(const std::string &hand_str, uint64_t bid);
 
+    bool operator<(const Hand &other) const;
+
 private:
     std::unordered_map<Card, uint64_t> cards_count;
+
+    void calculate_hand_type();
 };
 
 int puzzle_sample_1(const std::string &base_file_path);
