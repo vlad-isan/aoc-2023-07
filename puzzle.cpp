@@ -71,8 +71,17 @@ int puzzle_2(const std::string &base_file_path) {
 int do_puzzle_1(std::ifstream &file) {
     std::string line;
 
+    std::vector<Hand> hands;
+
     while (std::getline(file, line)) {
-        fmt::println("{}", line);
+        std::istringstream iss(line);
+
+        std::string hand_str;
+        uint64_t bid;
+
+        iss >> hand_str >> bid;
+
+        hands.emplace_back(hand_str, bid);
     }
 
     return 0;
@@ -86,4 +95,15 @@ int do_puzzle_2(std::ifstream &file) {
     }
 
     return 0;
+}
+
+Hand::Hand(const std::string &hand_str, uint64_t bid) : bid(bid) {
+    std::ranges::transform(hand_str, this->cards.begin(), [](char c) { return cards_map.at(c); });
+    fmt::println("Str {} with bid {} is: ", hand_str, this->bid);
+
+    for (auto &card : this->cards) {
+        fmt::print("{} ", (int)card);
+    }
+
+    fmt::println("\n");
 }
